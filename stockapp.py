@@ -58,18 +58,17 @@ st.write('Prediction period in days:', period)
 
 # Function to load data using yfinance
 @st.cache_data
-def load_data(ticker):
-    # Download historical stock data using yfinance
-    data = yf.download(selected_stock, start_date, end_date)
+def load_data(ticker, start, end):
+    # Download historical stock data using yfinance with dynamic start and end dates
+    data = yf.download(ticker, start, end)
     # Reset index to have the date as a column
     data.reset_index(inplace=True)
     return data
 
-data_load_state = st.text('Loading data...')
-data = load_data(selected_stock)
-data_load_state.text('Loading data... done!')
+data = load_data(selected_stock, start_date, end_date)
 
-st.subheader('Raw data')
+
+st.subheader('Raw data for {}'.format(selected_stock))
 st.write(data)
 
 # Plot raw data
