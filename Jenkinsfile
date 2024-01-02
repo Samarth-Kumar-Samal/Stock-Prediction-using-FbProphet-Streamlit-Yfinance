@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('dockerhub_id')
+        DOCKER_IMAGE_NAME = 'samarthkumarsamal1606/stock-prediction-app'
     }
 
     stages {
@@ -17,12 +18,14 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    def dockerImage = 'samarthkumarsamal1606/stock-prediction-app'
+                    def dockerImage = "${DOCKER_IMAGE_NAME}"
                     sh "docker build -t ${dockerImage} ."
 
                     // Set environment variables for the Docker login command
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                        sh '''
+                            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+                        '''
                     }
 
                     sh "docker push ${dockerImage}"
