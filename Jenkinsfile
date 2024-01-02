@@ -18,14 +18,14 @@ pipeline {
             steps {
                 script {
                     def dockerImage = 'samarthkumarsamal1606/stock-prediction-app'
-                    sh 'docker build -t ${dockerImage} .'
+                    sh "docker build -t ${dockerImage} ."
 
                     // Set environment variables for the Docker login command
-                    withEnv(["DOCKER_USERNAME=${DOCKER_HUB_CREDENTIALS_USR}", "DOCKER_PASSWORD=${DOCKER_HUB_CREDENTIALS_PSW}"]) {
-                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
                     }
 
-                    sh 'docker push ${dockerImage}'
+                    sh "docker push ${dockerImage}"
                 }
             }
         }
