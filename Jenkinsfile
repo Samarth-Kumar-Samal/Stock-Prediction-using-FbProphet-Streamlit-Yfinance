@@ -1,36 +1,46 @@
-pipeline {
-    agent any
+pipeline{
 
-    environment {
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub_id')
-        DOCKER_IMAGE_NAME = 'samarthkumarsamal1606/stock-prediction-app'
-    }
+	agent {label 'linux'}
 
-    stages {
-        stage('Checkout Repository') {
-            steps {
-                checkout([$class: 'GitSCM', 
-                    branches: [[name: '*/main']], 
-                    userRemoteConfigs: [[url: 'https://github.com/Samarth-Kumar-Samal/Stock-Prediction-using-FbProphet-Streamlit-Yfinance.git']]])
-            }
-        }
+	environment {
+		DOCKERHUB_CREDENTIALS=credentials('dockerhub_id')
+	}
 
-        stage('Build and Push Docker Image') {
-            steps {
-                script {
-                    def dockerImage = "${DOCKER_IMAGE_NAME}"
-                    sh "docker build -t ${dockerImage} ."
+	stages {
+	    
+	    stage('gitclone') {
 
-                    // Set environment variables for the Docker login command
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh '''
-                            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-                        '''
-                    }
+			steps {
+				git 'https://github.com/Samarth-Kumar-Samal/Stock-Prediction-using-FbProphet-Streamlit-Yfinance.git'
+			}
+		}
 
-                    sh "docker push ${dockerImage}"
-                }
-            }
-        }
-    }
+		stage('Build') {
+
+			steps {
+				sh 'docker build -t samarthkumarsamal1606/stock-prediction-app:latest .'
+			}
+		}
+
+		stage('Login') {
+
+			steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+			}
+		}
+
+		stage('Push') {
+
+			steps {
+				sh 'docker push samarthkumarsamal1606/stock-prediction-app:latest'
+			}
+		}
+	}
+
+	post {
+		always {
+			sh 'docker logout'
+		}
+	}
+
 }
