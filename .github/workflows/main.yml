@@ -23,14 +23,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      # Remove the deprecated 'save-state' step
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        run: |
+          echo "::set-output name=tags::latest"
+          echo "::set-output name=labels::com.example.metadata=example"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: samarthkumarsamal1606/stock-prediction-app:latest
+          tags: samarthkumarsamal1606/stock-prediction-app:main
+          labels: ${{ steps.meta.outputs.labels }}
         env:
           DOCKER_BUILDKIT: 1
           DOCKER_CLI: docker
