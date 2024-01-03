@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -24,12 +24,11 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: mr-smithers-excellent/docker-build-push@v6
         with:
-          context: .
-          push: true
-          tags: samarthkumarsamal1606/stock-prediction-app:latest
-          labels: com.example.metadata=example
-        env:
-          DOCKER_BUILDKIT: 1
-          DOCKER_CLI: docker
+          image: samarthkumarsamal1606/stock-prediction-app
+          tags: latest
+          registry: registry-url.io
+          dockerfile: Dockerfile.ci
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
